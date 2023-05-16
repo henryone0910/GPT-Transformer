@@ -13,3 +13,9 @@ Before run, you must create an environment file `.env` in the root directory of 
 ```bash
 python main.py
 ```
+
+or
+
+```bash
+flask run
+```
