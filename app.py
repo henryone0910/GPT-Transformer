@@ -1,21 +1,23 @@
 import openai
 import os
 from flask import Flask, redirect, render_template, request, url_for, jsonify
-from dotenv import load_dotenv, find_dotenv,set_key
+from dotenv import load_dotenv, find_dotenv, set_key
+
 app = Flask(__name__)
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 last_conv = []
-last_conv.append({'role': 'system', 'content': "you are a super rude assisstant."})
+last_conv.append(
+    {'role': 'system', 'content': "you are a super rude assisstant."})
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method =="POST":
+    if request.method == "POST":
         checkAPI = request.form.get('api_key')
-        if(checkAPI):
+        if (checkAPI):
             openai.api_key = request.form['api_key']
             dotenv_file = find_dotenv()
             set_key(dotenv_file, "OPENAI_API_KEY", request.form['api_key'])
@@ -25,7 +27,7 @@ def index():
         try:
             version = request.form['version']
             prompt = request.form['prompt']
-        
+
             question = {}
             question['role'] = 'user'
             question['content'] = prompt
@@ -36,19 +38,19 @@ def index():
             print("Error:", e)
             answer = {'content': str(e)}
             return jsonify(answer), 401
-        
+
         return jsonify(answer), 200
-    
+
     result = {'role': 'assisstant'}
     result['content'] = request.args.get('result')
     return render_template('index.html', result=result)
 
 def generate_response(last_conv, version):
     response = openai.ChatCompletion.create(
-            model = version,
-            messages = last_conv,
-            temperature = .6
-        )
+        model=version,
+        messages=last_conv,
+        temperature=.6
+    )
     answer = {}
     answer['role'] = response['choices'][0]['message']['role']
     answer['content'] = response['choices'][0]['message']['content'].replace('\n', '<br>')
@@ -57,4 +59,4 @@ def generate_response(last_conv, version):
 
 
 if __name__ == '__main__':
-    app.run(host = 'localhost', port = 5000, debug=False)
+    app.run(host='localhost', port=5000, debug=False)
