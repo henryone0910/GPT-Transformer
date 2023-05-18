@@ -25,11 +25,9 @@
 </head>
 
 <body style="text-align: center; font-family: Arial, serif; font-size: 14pt">
-    <h1 style="text-align: center; color: #fff;">ChatDemo</h1>
+    <h1 style="text-align: center; color: #fff;">ChatGPT Demo</h1>
 
-    <div id="list-messages" style="margin: 0 auto;width:80%;text-align: left; min-height: 530px;">
-
-    </div>
+    <div id="list-messages" style="margin: 0 auto;width:80%;text-align: left; min-height: 530px;"></div>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <form method="POST" action="/" id="form-modal">
             <div class="modal-dialog">
@@ -46,14 +44,14 @@
                             </div>
                         </div>
                         
-                        {% if model == 'gpt-3' %}
+                        <!-- {% if model == 'gpt-3' %}
 
                         <div class="mb-3">
                             <label for="api-key" class="form-label">API KEY</label>
                             <input type="text" class="form-control" id="api-key" name="api_key"
                                 placeholder="Enter your API KEY" required>
                         </div>
-                        {% endif %}
+                        {% endif %} -->
 
                         {% if model == 'gpt-3.5-turbo' %}
                         <div class="mb-3">
@@ -63,21 +61,21 @@
                         </div>
                         {% endif %}
 
-                        {% if model == 'gpt-4' %}
+                        <!-- {% if model == 'gpt-4' %}
                         <div class="mb-3">
                             <label for="api-key" class="form-label">API KEY</label>
                             <input type="text" class="form-control" id="api-key" name="api_key"
                                 placeholder="Enter your API KEY" required>
                         </div>
-                        {% endif %}
+                        {% endif %} -->
 
-                        {% if model == 'text-davinci-003' %}
+                        <!-- {% if model == 'text-davinci-003' %}
                         <div class="mb-3">
                             <label for="api-key" class="form-label">API KEY</label>
                             <input type="text" class="form-control" id="api-key" name="api_key"
                                 placeholder="Enter your API KEY" required>
                         </div>
-                        {% endif %}
+                        {% endif %} -->
 
                     </div>
                     <div class="modal-footer">
@@ -97,6 +95,8 @@
             <option>gpt-3</option>
         </select>
         <input type="text" id="prompt" name="prompt" placeholder="Message" required />
+        <button id="clear" onclick="clearMessages()"><i
+            class="fa-solid fa-trash"></i></button>
         <button id="send" type="submit" onclick="addMessage({'role':'user'})"><i
                 class="fa-regular fa-paper-plane"></i></button>
     </form>
@@ -196,6 +196,17 @@
             0,
             document.body.scrollHeight || document.documentElement.scrollHeight,
         );
+    }
+
+    var clear = document.getElementById("clear");
+    clear.addEventListener("click", function (event) {
+        event.preventDefault();
+        clearMessages();
+    });
+    
+    function clearMessages() {
+        let html_data = document.getElementById('list-messages');
+        html_data.innerHTML = '';
     }
 </script>
 
