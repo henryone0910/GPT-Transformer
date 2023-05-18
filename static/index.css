@@ -1,12 +1,25 @@
 body {
-	background: #343541;
-	font-size: 15px;
-    font-family:Arial, Helvetica, sans-serif;
+    background: #343541;
+    font-family: 'Noto Sans';
+    font-size: 14pt;
+    text-align: center;
     /* display:flex; */
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+}
+
+#list-messages {
+    margin: 0 auto;
+    width: 80%;
+    text-align: left;
+    min-height: 530px;
 }
 
 #send {
@@ -46,21 +59,25 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
 .form-select {
     width: 12%;
     position: relative;
     display: inline-block;
 }
+
 .list-group-item-content {
-    background-color:  #ebd800;
+    background-color: #ebd800;
 }
+
 .list-group-item-content:hover {
-    background-color:  #ebd800d7;
+    background-color: #ebd800d7;
 }
 
 .chat-gpt-content {
     background-color: #fbfbfb;
 }
+
 .chat-gpt-content:hover {
     background-color: #f0f0f0;
 }
