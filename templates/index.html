@@ -14,6 +14,13 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
 
+    <!-- AJAX thing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"
+        integrity="sha512-xbQU0+iHqhVt7VIXi6vBJKPh3IQBF5B84sSHdjKiSccyX/1ZI7Vnkt2/8y8uruj63/DVmCxfUNohPNruthTEQA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
     <!-- <link rel="stylesheet" href="/static/style.css" /> -->
     <link rel="stylesheet" href="../static/scrollbar.css" />
     <link rel="stylesheet" href="../static/index.css" />
@@ -27,7 +34,8 @@
 <body style="text-align: center; font-family: Arial, serif; font-size: 14pt">
     <h1 style="text-align: center; color: #fff;">ChatGPT Demo</h1>
 
-    <div id="list-messages" style="margin: 0 auto;width:80%;text-align: left; min-height: 530px;"></div>
+    <div id="list-messages" style="margin: 0 auto; width:80%; text-align: left; min-height: 530px;"></div>
+
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <form method="POST" action="/" id="form-modal">
             <div class="modal-dialog">
@@ -40,10 +48,9 @@
                         <div class="alert alert-danger d-flex align-items-center" role="alert">
                             <i class="fas fa-exclamation-triangle me-3"></i>
                             <div id="error-content">
-
                             </div>
                         </div>
-                        
+
                         <!-- {% if model == 'gpt-3' %}
 
                         <div class="mb-3">
@@ -95,119 +102,110 @@
             <option>gpt-3</option>
         </select>
         <input type="text" id="prompt" name="prompt" placeholder="Message" required />
-        <button id="clear" onclick="clearMessages()"><i
-            class="fa-solid fa-trash"></i></button>
+        <button id="clear" onclick="clearMessages()"><i class="fa-solid fa-trash"></i></button>
         <button id="send" type="submit" onclick="addMessage({'role':'user'})"><i
                 class="fa-regular fa-paper-plane"></i></button>
     </form>
-</body>
 
-    <!-- AJAX thing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"
-        integrity="sha512-xbQU0+iHqhVt7VIXi6vBJKPh3IQBF5B84sSHdjKiSccyX/1ZI7Vnkt2/8y8uruj63/DVmCxfUNohPNruthTEQA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
-        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <!--Operation-->
+    <script>
+        let form = document.getElementById("form-input");
 
-<!--Operation-->
-<script>
+        // Add an event listener to the form
+        form.addEventListener("submit", function (event) {
 
-    var form = document.getElementById("form-input");
+            // Prevent the default action of the form
+            event.preventDefault();
+            let prompt = $('#prompt').val();
+            $('#prompt').val('');
+            // Submit the form using AJAX
+            $.ajax({
+                url: form.action,
+                type: form.method,
+                data: { version: $('#form-input select').val(), prompt: prompt },
+                success: function (data) {
+                    // Update the page with the response data
+                    addMessage(data);
+                },
+                error: function (error) {
+                    console.log(error);
+                    if (error.responseJSON.content == "<empty message>") {
+                        error = { responseJSON: { content: "Your API KEY is <b>invalid</b>, try another KEY." } }
+                    }
+                    message = `<p>` + error.responseJSON.content + `</p>`;
 
-    // Add an event listener to the form
-    form.addEventListener("submit", function (event) {
-
-        // Prevent the default action of the form
-        event.preventDefault();
-        var prompt = $('#prompt').val();
-        $('#prompt').val('');
-        // Submit the form using AJAX
-        $.ajax({
-            url: form.action,
-            type: form.method,
-            data: { version: $('#form-input select').val(), prompt: prompt },
-            success: function (data) {
-
-                // Update the page with the response data
-                addMessage(data);
-            },
-            error: function (error) {
-                console.log(error);
-                if (error.responseJSON.content == "<empty message>") {
-                    error = { responseJSON: { content: "Your API KEY is <b>invalid</b>, try another KEY." } }
+                    let error_content = document.getElementById("error-content");
+                    error_content.innerHTML = message;
+                    let form1 = document.getElementById("form-modal");
+                    form1.addEventListener("submit", function (event) {
+                        event.preventDefault();
+                        $.ajax({
+                            url: form1.action,
+                            type: form1.method,
+                            data: { api_key: $('#api-key').val() },
+                            success: function (data) {
+                                // $('.modal').modal('hide');
+                                alert(data);
+                                window.location.reload();
+                            },
+                        })
+                    });
+                    $('.modal').modal('show');
                 }
-                message = `<p>` + error.responseJSON.content + `</p>`;
-                let error_content = document.getElementById("error-content");
-                error_content.innerHTML = message;
-                var form1 = document.getElementById("form-modal");
-                form1.addEventListener("submit", function (event) {
-                    event.preventDefault();
-                    $.ajax({
-                        url: form1.action,
-                        type: form1.method,
-                        data: { api_key: $('#api-key').val() },
-                        success: function (data) {
-                            // $('.modal').modal('hide');
-                            alert(data);
-                            window.location.reload();
-                        },
-                    })
-                });
-                $('.modal').modal('show');
-            }
+            });
         });
-    });
 
-    function addMessage(object) {
-        var prompt = object.role == 'user' ? $('#prompt').val() : object.content;
-        if (prompt == '') return;
+        function addMessage(object) {
+            let prompt = object.role == 'user' ? $('#prompt').val() : object.content;
+            if (prompt == '') return;
 
-        let html_data = document.getElementById('list-messages');
-        let logo = object.role == 'user' ? '../static/assets/logo/User_logo.jpg' : '../static/assets/logo/openai-logo.png';
-        var msg = '';
-        if (object.role == 'user') {
-            msg += `<div class="d-flex flex-row justify-content-start mb-4 list-group-item">
+            let html_data = document.getElementById('list-messages');
+            let logo = object.role == 'user' ? '../static/assets/logo/User_logo.jpg' : '../static/assets/logo/openai-logo.png';
+            let msg = '';
+            if (object.role == 'user') {
+                msg += `<div class="d-flex flex-row justify-content-start mb-4 list-group-item">
                             <img href = "#" src="`+ logo + `"
                                 alt="avatar 1" style="width: 45px; height: 100%;">
                             <div class="p-3 ms-3 list-group-item-content" style="border-radius: 15px;">
                                 <p class="small mb-0">`+ prompt + `</p>
                             </div>
                         </div>`;
-        }
-        else {
-            msg += `<div class="d-flex flex-row justify-content-end mb-4 list-group-item">
+            }
+            else {
+                msg += `<div class="d-flex flex-row justify-content-end mb-4 list-group-item">
                             <div class="p-3 me-3 border chat-gpt-content" style="border-radius: 15px;">
                                 <p class="small mb-0">`+ prompt + `</p>
                             </div>
                             <img href = "#" src="`+ logo + `"
                                 alt="avatar 1" style="width: 45px; height: 100%;">
                         </div>`;
+            }
+            html_data.innerHTML += msg;
+            scrollToBottom();
         }
-        html_data.innerHTML += msg;
-        scrollToBottom();
-    }
 
-    function scrollToTop() {
-        window.scrollTo(0, 0);
-    }
+        function scrollToTop() {
+            window.scrollTo(0, 0);
+        }
 
-    function scrollToBottom() {
-        window.scrollTo(
-            0,
-            document.body.scrollHeight || document.documentElement.scrollHeight,
-        );
-    }
+        function scrollToBottom() {
+            window.scrollTo(
+                0,
+                document.body.scrollHeight || document.documentElement.scrollHeight,
+            );
+        }
 
-    var clear = document.getElementById("clear");
-    clear.addEventListener("click", function (event) {
-        event.preventDefault();
-        clearMessages();
-    });
-    
-    function clearMessages() {
-        let html_data = document.getElementById('list-messages');
-        html_data.innerHTML = '';
-    }
-</script>
+        let clear = document.getElementById("clear");
+        clear.addEventListener("click", function (event) {
+            event.preventDefault();
+            clearMessages();
+        });
+
+        function clearMessages() {
+            let html_data = document.getElementById('list-messages');
+            html_data.innerHTML = '';
+        }
+    </script>
+</body>
 
 </html>
